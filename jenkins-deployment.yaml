@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{DEPLOYMENT_NAME}}
+  labels:
+    app: {{DEPLOYMENT_NAME}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{DEPLOYMENT_NAME}}
+  template:
+    metadata:
+      labels:
+        app: {{DEPLOYMENT_NAME}}
+    spec:
+      containers:
+        - name: jenkins-master
+          image: {{IMAGE_NAME}}
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: JAVA_OPTS
+              value: -Djenkins.install.runSetupWizard=false
+          ports:
+            - name: http-port
+              containerPort: {{CONTAINER_PORT}}
+            - name: jnlp-port
+              containerPort: 50000
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 500m
+              memory: 1024Mi
+          volumeMounts:
+            - name: jenkins-home
+              mountPath: /var/jenkins_home
+      volumes:
+      - name: jenkins-home
+        emptyDir: {}
